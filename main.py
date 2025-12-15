@@ -164,7 +164,7 @@ class SecureMessengerApp:
         if not port:
             port = self.config.get('network', 'default_port')
         
-        logger.info(f"[DEBUG] start_server called with port={port}", event="debug")
+        logger.info(f"start_server called with port={port}", event="server_mode")
         
         # Check if already connected
         if self.network_manager and self.network_manager.is_connected:
@@ -197,7 +197,7 @@ class SecureMessengerApp:
             messagebox.showerror(
                 "Error", 
                 f"Failed to start server on port {port}.\n"
-                f"The port may already in use or you may not have permission.\n"
+                f"The port may already be in use or you may not have permission.\n"
                 f"Try a different port or check if another instance is running."
             )
     
@@ -209,7 +209,7 @@ class SecureMessengerApp:
             host: Peer host address
             port: Peer port
         """
-        logger.info(f"[DEBUG] connect_to_peer called with host={host}, port={port}", event="debug")
+        logger.info(f"connect_to_peer called with host={host}, port={port}", event="client_mode")
         
         # Check if already connected
         if self.network_manager and self.network_manager.is_connected:

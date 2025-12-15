@@ -224,15 +224,18 @@ class MainWindow:
         result = dialog.show()
         
         if result:
-            print(f"[DEBUG] MainWindow: Connection dialog returned: {result}")
+            logger.info(f"Connection dialog returned: mode={result.get('mode')}, "
+                       f"host={result.get('host', 'N/A')}, port={result.get('port')}", 
+                       event="connection_routing")
+            
             if result['mode'] == 'listen':
-                print(f"[DEBUG] MainWindow: Routing to start_server with port={result['port']}")
+                logger.info("Routing to start_server (SERVER mode)", event="connection_routing")
                 self.app.start_server(port=result['port'])
             elif result['mode'] == 'connect':
-                print(f"[DEBUG] MainWindow: Routing to connect_to_peer with host={result['host']}, port={result['port']}")
+                logger.info(f"Routing to connect_to_peer (CLIENT mode)", event="connection_routing")
                 self.app.connect_to_peer(result['host'], result['port'])
             else:
-                logger.error(f"Unknown connection mode: {result.get('mode')}")
+                logger.error(f"Unknown connection mode: {result.get('mode')}", event="connection_error")
                 messagebox.showerror("Error", f"Unknown connection mode: {result.get('mode')}")
     
     def _listen_mode(self):

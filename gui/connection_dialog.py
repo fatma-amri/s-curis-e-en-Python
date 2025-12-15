@@ -6,7 +6,10 @@ Allows user to choose between server and client mode.
 import tkinter as tk
 from tkinter import ttk, messagebox
 from utils.validators import validate_ip, validate_port
+from utils.logger import SecureLogger
 from gui.styles import COLORS, FONTS, ICONS
+
+logger = SecureLogger('connection_dialog')
 
 
 class ConnectionDialog:
@@ -295,12 +298,13 @@ class ConnectionDialog:
                 return
             
             self.result = {"mode": "connect", "host": ip, "port": port}
-            print(f"[DEBUG] ConnectionDialog: Setting result for CLIENT mode: {self.result}")
+            logger.info(f"Dialog result: CLIENT mode selected - host={ip}, port={port}", event="dialog")
         elif mode == "listen":
             self.result = {"mode": "listen", "port": port}
-            print(f"[DEBUG] ConnectionDialog: Setting result for SERVER mode: {self.result}")
+            logger.info(f"Dialog result: SERVER mode selected - port={port}", event="dialog")
         else:
             # Should never happen, but handle it gracefully
+            logger.error(f"Unknown connection mode selected: {mode}", event="dialog_error")
             messagebox.showerror("Error", f"Unknown mode: {mode}")
             return
         
