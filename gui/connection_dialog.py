@@ -46,8 +46,8 @@ class ConnectionDialog:
     def _create_widgets(self):
         """Create dialog widgets."""
         # Main frame
-        main_frame = tk.Frame(self.dialog, padding=20, bg=COLORS['background'])
-        main_frame.pack(fill=tk.BOTH, expand=True)
+        main_frame = tk.Frame(self.dialog, bg=COLORS['background'])
+        main_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
         
         # Title
         title_label = tk.Label(

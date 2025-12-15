@@ -324,8 +324,8 @@ class MainWindow:
         dialog.transient(self.root)
         dialog.configure(bg=COLORS['background'])
         
-        frame = tk.Frame(dialog, padding=20, bg=COLORS['background'])
-        frame.pack(fill=tk.BOTH, expand=True)
+        frame = tk.Frame(dialog, bg=COLORS['background'])
+        frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
         
         title_label = tk.Label(
             frame,
@@ -429,11 +429,15 @@ Licence: MIT"""
             return
         
         # Validate message length
-        max_length = self.app.config.get('ui', 'message_max_length')
+        try:
+            max_length = self.app.config.get('ui', 'message_max_length')
+        except Exception:
+            max_length = 5000  # Default fallback
+            
         if len(text) > max_length:
             messagebox.showwarning(
-                "Message Too Long",
-                f"Message must be less than {max_length} characters."
+                "Message trop long",
+                f"Le message doit faire moins de {max_length} caractères."
             )
             return
         
@@ -453,20 +457,20 @@ Licence: MIT"""
                     except Exception as e:
                         logger.error(f"Failed to save message: {e}")
             else:
-                messagebox.showerror("Send Failed", "Failed to send message.")
+                messagebox.showerror("Échec de l'envoi", "Impossible d'envoyer le message.")
         else:
-            messagebox.showwarning("Not Connected", "No active connection.")
+            messagebox.showwarning("Non connecté", "Aucune connexion active.")
     
     def _attach_file(self):
         """Attach and send a file."""
         if not self.app.network_manager or not self.app.network_manager.is_connected:
-            messagebox.showwarning("Not Connected", "No active connection.")
+            messagebox.showwarning("Non connecté", "Aucune connexion active.")
             return
         
         # Select file
         file_path = filedialog.askopenfilename(
-            title="Select File to Send",
-            filetypes=[("All Files", "*.*")]
+            title="Sélectionner un fichier à envoyer",
+            filetypes=[("Tous les fichiers", "*.*")]
         )
         
         if file_path:
@@ -475,13 +479,13 @@ Licence: MIT"""
                 filename, size, hash_val, data = self.app.file_storage.prepare_file_for_sending(file_path)
                 
                 messagebox.showinfo(
-                    "File Transfer",
-                    f"File transfer feature is implemented but requires additional protocol support.\n\n"
-                    f"File: {filename}\nSize: {size} bytes"
+                    "Transfert de fichier",
+                    f"La fonctionnalité de transfert de fichiers est implémentée mais nécessite un support de protocole supplémentaire.\n\n"
+                    f"Fichier: {filename}\nTaille: {size} octets"
                 )
                 
             except Exception as e:
-                messagebox.showerror("File Error", f"Error preparing file: {e}")
+                messagebox.showerror("Erreur de fichier", f"Erreur lors de la préparation du fichier: {e}")
     
     def _on_enter_key(self, event):
         """Handle Enter key in message entry."""
