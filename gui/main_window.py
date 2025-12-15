@@ -230,7 +230,7 @@ class MainWindow:
             host = result.get('host')
             port = int(result.get('port', 5555))
             
-            if mode == 'server':
+            if mode == 'listen':
                 # ✅ Appeler start_server pour le mode serveur
                 self.app.start_server(port=port)
             elif mode == 'connect':
