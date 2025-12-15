@@ -295,8 +295,14 @@ class ConnectionDialog:
                 return
             
             self.result = {"mode": "connect", "host": ip, "port": port}
-        else:
+            print(f"[DEBUG] ConnectionDialog: Setting result for CLIENT mode: {self.result}")
+        elif mode == "listen":
             self.result = {"mode": "listen", "port": port}
+            print(f"[DEBUG] ConnectionDialog: Setting result for SERVER mode: {self.result}")
+        else:
+            # Should never happen, but handle it gracefully
+            messagebox.showerror("Error", f"Unknown mode: {mode}")
+            return
         
         self.dialog.destroy()
     
