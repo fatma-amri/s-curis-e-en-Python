@@ -5,6 +5,7 @@ Defines message types and handshake protocol.
 
 import json
 import struct
+import time
 from enum import IntEnum
 
 
@@ -238,6 +239,3 @@ class Protocol:
         """
         payload = {'reason': reason}
         return Protocol.encode_message(MessageType.DISCONNECT, payload)
-
-
-import time

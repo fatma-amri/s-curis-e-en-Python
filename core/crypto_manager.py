@@ -27,7 +27,6 @@ class CryptoManager:
         """Initialize crypto manager."""
         self.session_key = None
         self.cipher = None
-        self.nonce_counter = 0
         self.used_nonces = set()
     
     def set_session_key(self, session_key):
@@ -39,7 +38,6 @@ class CryptoManager:
         """
         self.session_key = session_key
         self.cipher = ChaCha20Poly1305(session_key)
-        self.nonce_counter = 0
         self.used_nonces.clear()
         logger.info("Session key set", event="session_key_set")
     
@@ -47,14 +45,22 @@ class CryptoManager:
         """
         Generate a unique nonce for encryption.
         
+        With 12-byte (96-bit) nonces, collision probability is negligible.
+        Maximum 100 retries to prevent infinite loops in case of issues.
+        
         Returns:
             bytes: 12-byte nonce
         """
-        while True:
+        max_retries = 100
+        for attempt in range(max_retries):
             nonce = secrets.token_bytes(12)
             if nonce not in self.used_nonces:
-                self.nonce_counter += 1
                 return nonce
+        
+        # If we somehow exhaust retries (extremely unlikely), clear set and try once more
+        logger.warning("Nonce generation exhausted retries, clearing used nonces", event="nonce_generation")
+        self.used_nonces.clear()
+        return secrets.token_bytes(12)
     
     def encrypt_message(self, plaintext, message_type=TYPE_TEXT, sender_id=b"self"):
         """
@@ -119,9 +125,15 @@ class CryptoManager:
         if version != self.VERSION:
             raise ValueError(f"Unsupported message version: {version}")
         
-        # Extract timestamp from ciphertext (first 8 bytes of AAD are in the tag verification)
-        # We need to try decryption with different timestamp values
-        # For simplicity, we'll use current time range
+        # NOTE: Timestamp validation approach
+        # The timestamp is included in the AAD, so we need to know it for decryption.
+        # Current approach tries timestamps within ±5 minute window, which creates a timing
+        # side-channel. In production, consider:
+        # 1. Including timestamp in message header (not in AAD)
+        # 2. Using a sequence number instead of timestamp
+        # 3. Accepting any timestamp within window and validating after decryption
+        # For this implementation, we accept the timing side-channel as a known limitation.
+        
         current_time = int(time.time())
         
         # Try timestamps within a reasonable window (±5 minutes)
@@ -196,7 +208,6 @@ class CryptoManager:
             self.session_key = None
         
         self.cipher = None
-        self.nonce_counter = 0
         self.used_nonces.clear()
         gc.collect()
         logger.info("Session cleared", event="session_clear")
