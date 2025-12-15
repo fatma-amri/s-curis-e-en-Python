@@ -61,8 +61,18 @@ class NetworkManager:
             port: Port number to listen on
             
         Returns:
-            bool: True if successful
+            bool: True if successful, False otherwise
         """
+        # Check if already listening
+        if self.is_server and self.socket:
+            logger.warning("Server already running", event="server_error")
+            return False
+        
+        # Check if already connected
+        if self.is_connected:
+            logger.warning("Already connected to a peer", event="server_error")
+            return False
+        
         try:
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -81,6 +91,14 @@ class NetworkManager:
             
         except Exception as e:
             logger.error(f"Failed to start server: {e}", event="server_error")
+            # Clean up socket on error
+            if self.socket:
+                try:
+                    self.socket.close()
+                except Exception:
+                    pass
+                self.socket = None
+            self.is_server = False
             return False
     
     def connect_to_peer(self, host, port, timeout=10):
@@ -93,8 +111,18 @@ class NetworkManager:
             timeout: Connection timeout in seconds
             
         Returns:
-            bool: True if successful
+            bool: True if successful, False otherwise
         """
+        # Check if already connected
+        if self.is_connected:
+            logger.warning("Already connected to a peer", event="connection_error")
+            return False
+        
+        # Check if already listening
+        if self.is_server and self.socket:
+            logger.warning("Cannot connect while server is running", event="connection_error")
+            return False
+        
         try:
             self.peer_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.peer_socket.settimeout(timeout)
@@ -115,7 +143,14 @@ class NetworkManager:
             return True
             
         except Exception as e:
-            logger.error(f"Failed to connect: {e}", event="connection_error")
+            logger.error(f"Failed to connect to peer: {e}", event="connection_error")
+            # Clean up socket on error
+            if self.peer_socket:
+                try:
+                    self.peer_socket.close()
+                except Exception:
+                    pass
+                self.peer_socket = None
             return False
     
     def _accept_connection(self):
