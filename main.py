@@ -161,16 +161,20 @@ class SecureMessengerApp:
         Args:
             port: Port to listen on (uses config default if None)
         """
+        logger.info(f"⚡ start_server() called - SERVER MODE - port={port}", event="method_entry")
+        
         if not port:
             port = self.config.get('network', 'default_port')
         
         # Check if already connected
         if self.network_manager and self.network_manager.is_connected:
+            logger.warning("Cannot start server: already connected", event="server_error")
             messagebox.showerror("Error", "Already connected to a peer. Disconnect first.")
             return
         
         # Check if already listening
         if self.network_manager and self.network_manager.is_server:
+            logger.warning("Cannot start server: already listening", event="server_error")
             messagebox.showerror("Error", "Server is already listening.")
             return
         
@@ -183,6 +187,7 @@ class SecureMessengerApp:
             )
             self._setup_network_callbacks()
         
+        logger.info(f"Calling network_manager.start_server(port={port})", event="network_call")
         success = self.network_manager.start_server(port=port)
         
         if success:
@@ -190,8 +195,9 @@ class SecureMessengerApp:
                 "Listening",
                 f"Port: {port}"
             )
-            logger.info(f"Server started on port {port}", event="server_start")
+            logger.info(f"✅ Server started successfully on port {port}", event="server_start")
         else:
+            logger.error(f"❌ Failed to start server on port {port}", event="server_error")
             messagebox.showerror(
                 "Error", 
                 f"Failed to start server on port {port}.\n"
@@ -207,13 +213,17 @@ class SecureMessengerApp:
             host: Peer host address
             port: Peer port
         """
+        logger.info(f"⚡ connect_to_peer() called - CLIENT MODE - host={host}, port={port}", event="method_entry")
+        
         # Check if already connected
         if self.network_manager and self.network_manager.is_connected:
+            logger.warning("Cannot connect: already connected", event="connection_error")
             messagebox.showerror("Error", "Already connected to a peer. Disconnect first.")
             return
         
         # Check if already listening
         if self.network_manager and self.network_manager.is_server:
+            logger.warning("Cannot connect: server is listening", event="connection_error")
             messagebox.showerror("Error", "Server is listening. Disconnect first.")
             return
         
@@ -226,15 +236,17 @@ class SecureMessengerApp:
             )
             self._setup_network_callbacks()
         
-        success = self.network_manager.connect_to_peer(host, port)  # ✅ Correct
+        logger.info(f"Calling network_manager.connect_to_peer(host={host}, port={port})", event="network_call")
+        success = self.network_manager.connect_to_peer(host, port)
         
         if success:
             self.main_window.update_status(
                 "Connecting...",
                 f"{host}:{port}"
             )
-            logger.info(f"Connected to {host}:{port}", event="connection")
+            logger.info(f"✅ Connected successfully to {host}:{port}", event="connection")
         else:
+            logger.error(f"❌ Failed to connect to {host}:{port}", event="connection_error")
             messagebox.showerror(
                 "Error", 
                 f"Failed to connect to peer at {host}:{port}.\n"

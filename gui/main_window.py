@@ -221,7 +221,9 @@ class MainWindow:
         """Show connection dialog."""
         from gui.connection_dialog import ConnectionDialog
         
-        # ✅ Passer key_manager à ConnectionDialog
+        logger.info("Opening connection dialog", event="ui_action")
+        
+        # Pass key_manager to ConnectionDialog
         dialog = ConnectionDialog(self.root, self.app.key_manager)
         result = dialog.show()
         
@@ -230,14 +232,21 @@ class MainWindow:
             host = result.get('host')
             port = int(result.get('port', 5555))
             
+            logger.info(f"Connection dialog result: mode={mode}, host={host}, port={port}", event="connection_request")
+            
             if mode == 'listen':
-                # ✅ Appeler start_server pour le mode serveur
+                # Call start_server for server mode
+                logger.info("Routing to start_server (SERVER MODE)", event="routing")
                 self.app.start_server(port=port)
             elif mode == 'connect':
-                # ✅ Appeler connect_to_peer pour le mode client
+                # Call connect_to_peer for client mode
+                logger.info(f"Routing to connect_to_peer (CLIENT MODE) - host={host}, port={port}", event="routing")
                 self.app.connect_to_peer(host, port)
             else:
-                messagebox.showerror("Error", "Invalid connection mode")
+                logger.error(f"Invalid connection mode: {mode}", event="routing_error")
+                messagebox.showerror("Error", f"Invalid connection mode: {mode}")
+        else:
+            logger.info("Connection dialog cancelled", event="ui_action")
     
     def _listen_mode(self):
         """Start listening in server mode."""
@@ -564,46 +573,3 @@ Licence: MIT"""
     def run(self):
         """Run the main event loop."""
         self.root.mainloop()
-    
-    def connect_to_peer(self, host, port, timeout=10):
-        """
-        Connect to a peer in client mode.
-        
-        Args:
-            host: Hostname or IP address of the peer
-            port: Port number of the peer
-            timeout: Connection timeout in seconds (default: 10)
-        """
-        # Check if already connected
-        if self.app.network_manager and self.app.network_manager.is_connected:
-            logger.warning("Already connected to a peer", event="connection_error")
-            messagebox.showwarning("Connexion", "Déjà connecté à un pair.")
-            return False
-        
-        # Check if already listening
-        if self.app.network_manager and self.app.network_manager.is_server:
-            logger.warning("Cannot connect while server is running", event="connection_error")
-            messagebox.showwarning("Connexion", "Le serveur écoute. Déconnectez-vous d'abord.")
-            return False
-        
-        try:
-            # ✅ Appeler la méthode connect_to_peer de l'app
-            success = self.app.connect_to_peer(host, port)
-            
-            if success:
-                logger.info(f"Connected to {host}:{port}", event="connection_success")
-                self.update_status("Connecté", f"{host}:{port}")
-                self.enable_chat(True)
-            else:
-                messagebox.showerror(
-                    "Erreur de connexion",
-                    f"Impossible de se connecter à {host}:{port}\n\n"
-                    f"Vérifiez que le pair écoute et est accessible."
-                )
-            
-            return success
-            
-        except Exception as e:
-            logger.error(f"Error connecting to peer: {e}", event="connection_error")
-            messagebox.showerror("Erreur de connexion", f"Erreur lors de la connexion: {e}")
-            return False

@@ -6,7 +6,7 @@ Ensures sensitive data is never logged.
 import logging
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
@@ -20,7 +20,7 @@ class SecureFormatter(logging.Formatter):
         """Format log record, redacting sensitive information."""
         # Create a copy of the record to avoid modifying the original
         record_dict = {
-            'timestamp': datetime.utcnow().isoformat(),
+            'timestamp': datetime.now(timezone.utc).isoformat(),
             'level': record.levelname,
             'logger': record.name,
             'message': record.getMessage(),

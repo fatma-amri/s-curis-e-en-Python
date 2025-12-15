@@ -6,7 +6,10 @@ Allows user to choose between server and client mode.
 import tkinter as tk
 from tkinter import ttk, messagebox
 from utils.validators import validate_ip, validate_port
+from utils.logger import SecureLogger
 from gui.styles import COLORS, FONTS, ICONS
+
+logger = SecureLogger('connection_dialog')
 
 
 class ConnectionDialog:
@@ -279,8 +282,11 @@ class ConnectionDialog:
         mode = self.mode_var.get()
         port = self.port_entry.get().strip()
         
+        logger.info(f"Connect button clicked: mode={mode}, port={port}", event="dialog_submit")
+        
         # Validate port
         if not validate_port(port):
+            logger.warning(f"Invalid port entered: {port}", event="validation_error")
             messagebox.showerror("Invalid Input", "Please enter a valid port (1-65535)")
             return
         
@@ -289,14 +295,20 @@ class ConnectionDialog:
         if mode == "connect":
             ip = self.ip_entry.get().strip()
             
+            logger.info(f"Client mode selected - IP: {ip}, Port: {port}", event="mode_selection")
+            
             # Validate IP
             if not validate_ip(ip):
+                logger.warning(f"Invalid IP entered: {ip}", event="validation_error")
                 messagebox.showerror("Invalid Input", "Please enter a valid IP address")
                 return
             
             self.result = {"mode": "connect", "host": ip, "port": port}
+            logger.info(f"Returning CLIENT mode result: {self.result}", event="dialog_result")
         else:
+            logger.info(f"Server mode selected - Port: {port}", event="mode_selection")
             self.result = {"mode": "listen", "port": port}
+            logger.info(f"Returning SERVER mode result: {self.result}", event="dialog_result")
         
         self.dialog.destroy()
     
