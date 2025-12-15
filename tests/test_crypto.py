@@ -61,8 +61,11 @@ class TestCrypto(unittest.TestCase):
         self.assertIsNotNone(encrypted)
         self.assertNotEqual(encrypted, plaintext.encode())
         
-        # Decrypt
-        decrypted, msg_type, timestamp = self.crypto_manager.decrypt_message(encrypted)
+        # Decrypt with same sender_id
+        decrypted, msg_type, timestamp = self.crypto_manager.decrypt_message(
+            encrypted, 
+            sender_id=b"self"
+        )
         self.assertEqual(decrypted.decode('utf-8'), plaintext)
         self.assertEqual(msg_type, CryptoManager.TYPE_TEXT)
     

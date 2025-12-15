@@ -53,7 +53,6 @@ class CryptoManager:
         while True:
             nonce = secrets.token_bytes(12)
             if nonce not in self.used_nonces:
-                self.used_nonces.add(nonce)
                 self.nonce_counter += 1
                 return nonce
     
@@ -120,11 +119,6 @@ class CryptoManager:
         if version != self.VERSION:
             raise ValueError(f"Unsupported message version: {version}")
         
-        # Check for nonce reuse (replay attack protection)
-        if nonce in self.used_nonces:
-            logger.warning("Nonce reuse detected - possible replay attack", event="security")
-            raise ValueError("Nonce reuse detected")
-        
         # Extract timestamp from ciphertext (first 8 bytes of AAD are in the tag verification)
         # We need to try decryption with different timestamp values
         # For simplicity, we'll use current time range
@@ -148,6 +142,11 @@ class CryptoManager:
         
         if plaintext is None:
             raise ValueError("Decryption failed - invalid message or key")
+        
+        # Check for nonce reuse (replay attack protection) after successful decryption
+        if nonce in self.used_nonces:
+            logger.warning("Nonce reuse detected - possible replay attack", event="security")
+            raise ValueError("Nonce reuse detected")
         
         self.used_nonces.add(nonce)
         
