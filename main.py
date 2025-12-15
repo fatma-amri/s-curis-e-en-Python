@@ -164,6 +164,16 @@ class SecureMessengerApp:
         if not port:
             port = self.config.get('network', 'default_port')
         
+        # Check if already connected
+        if self.network_manager and self.network_manager.is_connected:
+            messagebox.showerror("Error", "Already connected to a peer. Disconnect first.")
+            return
+        
+        # Check if already listening
+        if self.network_manager and self.network_manager.is_server:
+            messagebox.showerror("Error", "Server is already listening.")
+            return
+        
         # Create network manager if not exists
         if not self.network_manager:
             self.network_manager = NetworkManager(
@@ -182,7 +192,12 @@ class SecureMessengerApp:
             )
             logger.info(f"Server started on port {port}", event="server_start")
         else:
-            messagebox.showerror("Error", "Failed to start server.")
+            messagebox.showerror(
+                "Error", 
+                f"Failed to start server on port {port}.\n"
+                f"The port may already be in use or you may not have permission.\n"
+                f"Try a different port or check if another instance is running."
+            )
     
     def connect_to_peer(self, host, port):
         """
@@ -192,6 +207,16 @@ class SecureMessengerApp:
             host: Peer host address
             port: Peer port
         """
+        # Check if already connected
+        if self.network_manager and self.network_manager.is_connected:
+            messagebox.showerror("Error", "Already connected to a peer. Disconnect first.")
+            return
+        
+        # Check if already listening
+        if self.network_manager and self.network_manager.is_server:
+            messagebox.showerror("Error", "Server is listening. Disconnect first.")
+            return
+        
         # Create network manager if not exists
         if not self.network_manager:
             self.network_manager = NetworkManager(
@@ -210,7 +235,12 @@ class SecureMessengerApp:
             )
             logger.info(f"Connected to {host}:{port}", event="connection")
         else:
-            messagebox.showerror("Error", "Failed to connect to peer.")
+            messagebox.showerror(
+                "Error", 
+                f"Failed to connect to peer at {host}:{port}.\n"
+                f"Make sure the peer is listening and reachable.\n"
+                f"Check your network connection and firewall settings."
+            )
     
     def _setup_network_callbacks(self):
         """Setup callbacks for network events."""
