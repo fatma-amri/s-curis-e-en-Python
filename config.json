@@ -1,0 +1,31 @@
+{
+    "network": {
+        "default_port": 5555,
+        "bind_address": "0.0.0.0",
+        "connection_timeout": 10,
+        "heartbeat_interval": 30,
+        "max_message_size": 10485760
+    },
+    "security": {
+        "rekeying_message_threshold": 1000,
+        "rekeying_time_threshold": 86400,
+        "salt_size": 32,
+        "nonce_size": 12
+    },
+    "storage": {
+        "database_path": "data/database/messenger.db",
+        "keys_directory": "data/keys",
+        "files_directory": "data/files",
+        "logs_directory": "data/logs"
+    },
+    "ui": {
+        "window_width": 900,
+        "window_height": 600,
+        "message_max_length": 10000
+    },
+    "logging": {
+        "level": "INFO",
+        "max_file_size": 10485760,
+        "backup_count": 5
+    }
+}
