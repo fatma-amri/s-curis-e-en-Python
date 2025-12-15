@@ -5,6 +5,8 @@ Chat interface components for displaying messages.
 import tkinter as tk
 from tkinter import ttk
 from datetime import datetime
+from gui.styles import COLORS, FONTS, ICONS
+from gui.widgets import MessageBubble
 
 
 class ChatInterface:
@@ -28,9 +30,25 @@ class ChatInterface:
         self.container = ttk.Frame(self.parent)
         self.container.pack(fill=tk.BOTH, expand=True)
         
+        # Chat header (contact info)
+        header_frame = tk.Frame(self.container, bg=COLORS['background'], 
+                               relief=tk.SOLID, bd=1)
+        header_frame.pack(fill=tk.X, padx=0, pady=0)
+        
+        header_label = tk.Label(
+            header_frame,
+            text="Secure P2P Messenger",
+            font=FONTS['heading'],
+            fg=COLORS['text_primary'],
+            bg=COLORS['background'],
+            padx=15,
+            pady=10
+        )
+        header_label.pack(side=tk.LEFT)
+        
         # Chat display area with scrollbar
-        display_frame = ttk.Frame(self.container)
-        display_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        display_frame = tk.Frame(self.container, bg=COLORS['background'])
+        display_frame.pack(fill=tk.BOTH, expand=True, padx=0, pady=0)
         
         # Scrollbar
         scrollbar = ttk.Scrollbar(display_frame)
@@ -39,7 +57,7 @@ class ChatInterface:
         # Canvas for messages (allows better control over message bubbles)
         self.canvas = tk.Canvas(
             display_frame,
-            bg='#f0f0f0',
+            bg=COLORS['background'],
             yscrollcommand=scrollbar.set,
             highlightthickness=0
         )
@@ -48,7 +66,7 @@ class ChatInterface:
         scrollbar.config(command=self.canvas.yview)
         
         # Frame inside canvas for messages
-        self.messages_frame = ttk.Frame(self.canvas)
+        self.messages_frame = tk.Frame(self.canvas, bg=COLORS['background'])
         self.canvas_window = self.canvas.create_window(
             0, 0,
             window=self.messages_frame,
@@ -59,38 +77,62 @@ class ChatInterface:
         self.canvas.bind('<Configure>', self._on_canvas_resize)
         self.messages_frame.bind('<Configure>', self._on_frame_resize)
         
-        # Input area
-        input_frame = ttk.Frame(self.container)
+        # Input area with border
+        input_container = tk.Frame(self.container, bg=COLORS['border'], bd=1, relief=tk.SOLID)
+        input_container.pack(fill=tk.X, padx=0, pady=0)
+        
+        input_frame = tk.Frame(input_container, bg=COLORS['background'])
         input_frame.pack(fill=tk.X, padx=5, pady=5)
         
-        # Message entry
+        # Left side - attach button
+        left_buttons = tk.Frame(input_frame, bg=COLORS['background'])
+        left_buttons.pack(side=tk.LEFT, padx=(0, 5))
+        
+        self.attach_button = tk.Button(
+            left_buttons,
+            text=ICONS['attach'],
+            font=FONTS['body'],
+            state=tk.DISABLED,
+            bg=COLORS['background'],
+            fg=COLORS['text_secondary'],
+            relief=tk.FLAT,
+            bd=0,
+            padx=8,
+            pady=5,
+            cursor='hand2'
+        )
+        self.attach_button.pack()
+        
+        # Center - message entry
         self.message_entry = tk.Text(
             input_frame,
             height=3,
             wrap=tk.WORD,
-            font=('Arial', 10)
+            font=FONTS['body'],
+            bg=COLORS['background'],
+            relief=tk.FLAT,
+            bd=0
         )
-        self.message_entry.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 5))
+        self.message_entry.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5)
         
-        # Button frame
-        button_frame = ttk.Frame(input_frame)
-        button_frame.pack(side=tk.RIGHT)
+        # Right side - send button
+        right_buttons = tk.Frame(input_frame, bg=COLORS['background'])
+        right_buttons.pack(side=tk.RIGHT, padx=(5, 0))
         
-        # Send button
-        self.send_button = ttk.Button(
-            button_frame,
-            text="Send",
-            state=tk.DISABLED
+        self.send_button = tk.Button(
+            right_buttons,
+            text=f"Envoyer {ICONS['send']}",
+            font=FONTS['body'],
+            state=tk.DISABLED,
+            bg=COLORS['primary'],
+            fg='white',
+            relief=tk.FLAT,
+            bd=0,
+            padx=15,
+            pady=8,
+            cursor='hand2'
         )
-        self.send_button.pack(pady=(0, 5))
-        
-        # Attach file button
-        self.attach_button = ttk.Button(
-            button_frame,
-            text="📎 File",
-            state=tk.DISABLED
-        )
-        self.attach_button.pack()
+        self.send_button.pack()
     
     def _on_canvas_resize(self, event):
         """Handle canvas resize."""
@@ -124,64 +166,17 @@ class ChatInterface:
             except:
                 timestamp = datetime.now()
         
-        # Create message frame
-        msg_frame = ttk.Frame(self.messages_frame)
-        msg_frame.pack(fill=tk.X, pady=5, padx=10)
-        
-        # Timestamp
+        # Format timestamp
         time_str = timestamp.strftime('%H:%M')
         
-        if direction == 'sent':
-            # Sent message - right aligned, blue
-            bubble = tk.Frame(msg_frame, bg='#0084ff', bd=0)
-            bubble.pack(side=tk.RIGHT)
-            
-            text_widget = tk.Label(
-                bubble,
-                text=text,
-                bg='#0084ff',
-                fg='white',
-                font=('Arial', 10),
-                wraplength=300,
-                justify=tk.LEFT,
-                padx=10,
-                pady=8
-            )
-            text_widget.pack()
-            
-            time_label = tk.Label(
-                msg_frame,
-                text=time_str,
-                font=('Arial', 8),
-                fg='gray'
-            )
-            time_label.pack(side=tk.RIGHT, padx=(0, 5))
-            
-        else:
-            # Received message - left aligned, gray
-            bubble = tk.Frame(msg_frame, bg='#e4e6eb', bd=0)
-            bubble.pack(side=tk.LEFT)
-            
-            text_widget = tk.Label(
-                bubble,
-                text=text,
-                bg='#e4e6eb',
-                fg='black',
-                font=('Arial', 10),
-                wraplength=300,
-                justify=tk.LEFT,
-                padx=10,
-                pady=8
-            )
-            text_widget.pack()
-            
-            time_label = tk.Label(
-                msg_frame,
-                text=time_str,
-                font=('Arial', 8),
-                fg='gray'
-            )
-            time_label.pack(side=tk.LEFT, padx=(5, 0))
+        # Create message bubble using custom widget
+        bubble = MessageBubble(
+            self.messages_frame,
+            text=text,
+            direction=direction,
+            timestamp=time_str
+        )
+        bubble.pack(fill=tk.X, pady=2)
         
         self.messages.append((text, direction, timestamp))
         self._scroll_to_bottom()

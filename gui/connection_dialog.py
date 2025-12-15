@@ -6,6 +6,7 @@ Allows user to choose between server and client mode.
 import tkinter as tk
 from tkinter import ttk, messagebox
 from utils.validators import validate_ip, validate_port
+from gui.styles import COLORS, FONTS, ICONS
 
 
 class ConnectionDialog:
@@ -24,108 +25,242 @@ class ConnectionDialog:
         self.result = None
         
         self.dialog = tk.Toplevel(parent)
-        self.dialog.title("Connect to Peer")
-        self.dialog.geometry("450x350")
+        self.dialog.title(f"{ICONS['connect']} Connexion P2P")
+        self.dialog.geometry("500x450")
         self.dialog.resizable(False, False)
         self.dialog.transient(parent)
         self.dialog.grab_set()
+        self.dialog.configure(bg=COLORS['background'])
         
         self._create_widgets()
         
+        # Bind Escape key
+        self.dialog.bind('<Escape>', lambda e: self._on_cancel())
+        
         # Center dialog
         self.dialog.update_idletasks()
-        x = (self.dialog.winfo_screenwidth() // 2) - (450 // 2)
-        y = (self.dialog.winfo_screenheight() // 2) - (350 // 2)
-        self.dialog.geometry(f"450x350+{x}+{y}")
+        x = (self.dialog.winfo_screenwidth() // 2) - (500 // 2)
+        y = (self.dialog.winfo_screenheight() // 2) - (450 // 2)
+        self.dialog.geometry(f"500x450+{x}+{y}")
     
     def _create_widgets(self):
         """Create dialog widgets."""
         # Main frame
-        main_frame = ttk.Frame(self.dialog, padding="20")
+        main_frame = tk.Frame(self.dialog, padding=20, bg=COLORS['background'])
         main_frame.pack(fill=tk.BOTH, expand=True)
         
         # Title
-        title_label = ttk.Label(
+        title_label = tk.Label(
             main_frame,
-            text="Establish Secure Connection",
-            font=('Arial', 14, 'bold')
+            text=f"{ICONS['connect']} Établir une connexion sécurisée",
+            font=FONTS['title'],
+            fg=COLORS['text_primary'],
+            bg=COLORS['background']
         )
         title_label.pack(pady=(0, 20))
         
-        # Mode selection
-        mode_frame = ttk.LabelFrame(main_frame, text="Connection Mode", padding="10")
+        # Mode selection with cards
+        mode_label = tk.Label(
+            main_frame,
+            text="Mode de connexion:",
+            font=FONTS['heading'],
+            fg=COLORS['text_primary'],
+            bg=COLORS['background'],
+            anchor=tk.W
+        )
+        mode_label.pack(fill=tk.X, pady=(0, 10))
+        
+        mode_frame = tk.Frame(main_frame, bg=COLORS['background'])
         mode_frame.pack(fill=tk.X, pady=(0, 15))
         
         self.mode_var = tk.StringVar(value="listen")
         
-        listen_radio = ttk.Radiobutton(
-            mode_frame,
-            text="Listen (Server Mode) - Wait for incoming connection",
+        # Listen mode card
+        listen_card = tk.Frame(mode_frame, bg=COLORS['secondary'], relief=tk.FLAT, bd=2)
+        listen_card.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 5))
+        
+        listen_radio = tk.Radiobutton(
+            listen_card,
+            text=f"{ICONS['listen']} Écouter\n(Serveur)",
             variable=self.mode_var,
             value="listen",
-            command=self._on_mode_change
+            command=self._on_mode_change,
+            font=FONTS['body'],
+            bg=COLORS['secondary'],
+            fg=COLORS['text_primary'],
+            selectcolor=COLORS['secondary'],
+            activebackground=COLORS['secondary'],
+            pady=15,
+            padx=10,
+            bd=0,
+            cursor='hand2'
         )
-        listen_radio.pack(anchor=tk.W)
+        listen_radio.pack(fill=tk.BOTH, expand=True)
         
-        connect_radio = ttk.Radiobutton(
-            mode_frame,
-            text="Connect (Client Mode) - Connect to peer",
+        # Connect mode card
+        connect_card = tk.Frame(mode_frame, bg=COLORS['secondary'], relief=tk.FLAT, bd=2)
+        connect_card.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(5, 0))
+        
+        connect_radio = tk.Radiobutton(
+            connect_card,
+            text=f"{ICONS['connect']} Se connecter\n(Client)",
             variable=self.mode_var,
             value="connect",
-            command=self._on_mode_change
+            command=self._on_mode_change,
+            font=FONTS['body'],
+            bg=COLORS['secondary'],
+            fg=COLORS['text_primary'],
+            selectcolor=COLORS['secondary'],
+            activebackground=COLORS['secondary'],
+            pady=15,
+            padx=10,
+            bd=0,
+            cursor='hand2'
         )
-        connect_radio.pack(anchor=tk.W)
+        connect_radio.pack(fill=tk.BOTH, expand=True)
         
         # Connection details
-        details_frame = ttk.LabelFrame(main_frame, text="Connection Details", padding="10")
+        details_frame = tk.LabelFrame(
+            main_frame,
+            text=" Paramètres ",
+            font=FONTS['body'],
+            fg=COLORS['text_primary'],
+            bg=COLORS['background'],
+            relief=tk.SOLID,
+            bd=1
+        )
         details_frame.pack(fill=tk.X, pady=(0, 15))
         
+        inner_frame = tk.Frame(details_frame, bg=COLORS['background'])
+        inner_frame.pack(fill=tk.BOTH, expand=True, padx=15, pady=15)
+        
         # IP Address (only for client mode)
-        ip_frame = ttk.Frame(details_frame)
-        ip_frame.pack(fill=tk.X, pady=5)
+        ip_frame = tk.Frame(inner_frame, bg=COLORS['background'])
+        ip_frame.pack(fill=tk.X, pady=(0, 10))
         
-        self.ip_label = ttk.Label(ip_frame, text="Peer IP Address:", width=15)
-        self.ip_label.pack(side=tk.LEFT)
+        self.ip_label = tk.Label(
+            ip_frame,
+            text="Adresse IP:",
+            width=12,
+            font=FONTS['body'],
+            fg=COLORS['text_primary'],
+            bg=COLORS['background'],
+            anchor=tk.W
+        )
+        self.ip_label.pack(side=tk.LEFT, padx=(0, 10))
         
-        self.ip_entry = ttk.Entry(ip_frame)
-        self.ip_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(5, 0))
+        self.ip_entry = tk.Entry(
+            ip_frame,
+            font=FONTS['body'],
+            bg=COLORS['background'],
+            fg=COLORS['text_primary'],
+            relief=tk.SOLID,
+            bd=1
+        )
+        self.ip_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
         self.ip_entry.insert(0, "127.0.0.1")
         
         # Port
-        port_frame = ttk.Frame(details_frame)
-        port_frame.pack(fill=tk.X, pady=5)
+        port_frame = tk.Frame(inner_frame, bg=COLORS['background'])
+        port_frame.pack(fill=tk.X)
         
-        ttk.Label(port_frame, text="Port:", width=15).pack(side=tk.LEFT)
+        tk.Label(
+            port_frame,
+            text="Port:",
+            width=12,
+            font=FONTS['body'],
+            fg=COLORS['text_primary'],
+            bg=COLORS['background'],
+            anchor=tk.W
+        ).pack(side=tk.LEFT, padx=(0, 10))
         
-        self.port_entry = ttk.Entry(port_frame)
-        self.port_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(5, 0))
+        self.port_entry = tk.Entry(
+            port_frame,
+            font=FONTS['body'],
+            bg=COLORS['background'],
+            fg=COLORS['text_primary'],
+            relief=tk.SOLID,
+            bd=1
+        )
+        self.port_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
         self.port_entry.insert(0, "5555")
         
         # Fingerprint display
-        fp_frame = ttk.LabelFrame(main_frame, text="Your Fingerprint", padding="10")
+        fp_frame = tk.LabelFrame(
+            main_frame,
+            text=" Votre identité ",
+            font=FONTS['body'],
+            fg=COLORS['text_primary'],
+            bg=COLORS['background'],
+            relief=tk.SOLID,
+            bd=1
+        )
         fp_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 15))
         
+        fp_inner = tk.Frame(fp_frame, bg=COLORS['background'])
+        fp_inner.pack(fill=tk.BOTH, expand=True, padx=15, pady=15)
+        
+        tk.Label(
+            fp_inner,
+            text="Fingerprint:",
+            font=FONTS['body'],
+            fg=COLORS['text_primary'],
+            bg=COLORS['background'],
+            anchor=tk.W
+        ).pack(fill=tk.X, pady=(0, 5))
+        
         fingerprint = self.key_manager.get_fingerprint()
-        fp_text = tk.Text(fp_frame, height=3, wrap=tk.WORD, font=('Courier', 9))
+        
+        fp_display_frame = tk.Frame(fp_inner, bg=COLORS['secondary'], relief=tk.FLAT, bd=1)
+        fp_display_frame.pack(fill=tk.BOTH, expand=True)
+        
+        fp_text = tk.Text(
+            fp_display_frame,
+            height=2,
+            wrap=tk.WORD,
+            font=FONTS['mono_small'],
+            bg=COLORS['secondary'],
+            fg=COLORS['text_primary'],
+            relief=tk.FLAT,
+            bd=8
+        )
         fp_text.insert(1.0, fingerprint)
         fp_text.config(state=tk.DISABLED)
         fp_text.pack(fill=tk.BOTH, expand=True)
         
         # Buttons
-        button_frame = ttk.Frame(main_frame)
+        button_frame = tk.Frame(main_frame, bg=COLORS['background'])
         button_frame.pack(fill=tk.X)
         
-        ttk.Button(
+        cancel_btn = tk.Button(
             button_frame,
-            text="Cancel",
-            command=self._on_cancel
-        ).pack(side=tk.RIGHT, padx=(5, 0))
+            text="Annuler",
+            command=self._on_cancel,
+            font=FONTS['body'],
+            bg=COLORS['secondary'],
+            fg=COLORS['text_primary'],
+            relief=tk.FLAT,
+            bd=0,
+            padx=20,
+            pady=10,
+            cursor='hand2'
+        )
+        cancel_btn.pack(side=tk.RIGHT, padx=(5, 0))
         
-        ttk.Button(
+        connect_btn = tk.Button(
             button_frame,
-            text="Connect",
-            command=self._on_connect
-        ).pack(side=tk.RIGHT)
+            text=f"Connecter {ICONS['rocket']}",
+            command=self._on_connect,
+            font=FONTS['body'],
+            bg=COLORS['primary'],
+            fg='white',
+            relief=tk.FLAT,
+            bd=0,
+            padx=20,
+            pady=10,
+            cursor='hand2'
+        )
+        connect_btn.pack(side=tk.RIGHT)
         
         # Initial state
         self._on_mode_change()
