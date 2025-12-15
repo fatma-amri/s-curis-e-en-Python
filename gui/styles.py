@@ -5,19 +5,19 @@ Centralized styling and theme definitions for the GUI.
 # Color palette for the application
 COLORS = {
     'primary': '#0084FF',        # Blue principal (messages sent)
-    'secondary': "#9F73A9",      # Gray light (messages received)
+    'secondary': '#E4E6EB',      # Gray light (messages received, buttons)
     'success': '#31A24C',        # Green (connected)
     'danger': '#FA3E3E',         # Red (disconnected)
     'warning': '#F7B928',        # Orange (waiting)
-    'background': "#5C2121",     # White background
-    'sidebar': "#191C21",        # Gray sidebar background
-    'text_primary': "#141212",   # Primary text
+    'background': '#FFFFFF',     # White background
+    'sidebar': '#F0F2F5',        # Gray sidebar background
+    'text_primary': '#050505',   # Primary text
     'text_secondary': '#65676B', # Secondary text
-    'border': "#050A11",         # Borders
-    'bubble_sent': '#0084FF',    # Sent message bubble
-    'bubble_received': "#486ECE", # Received message bubble
-    'hover': "#1E4593",          # Hover state
-    'active': "#1E949D",         # Active state
+    'border': '#DADDE1',         # Borders
+    'bubble_sent': '#0084FF',    # Sent message bubble (blue)
+    'bubble_received': '#E4E6EB', # Received message bubble (gray)
+    'hover': '#E7F3FF',          # Hover state
+    'active': '#D3E3FD',         # Active state
 }
 
 # Font configurations
