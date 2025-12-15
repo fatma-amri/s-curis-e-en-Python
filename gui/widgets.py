@@ -43,7 +43,7 @@ class MessageBubble(tk.Frame):
         else:
             # Received message - left aligned, gray
             bubble_color = COLORS['bubble_received']
-            text_color = COLORS['text_primary']
+            text_color = COLORS['text_primary']  # Use color constant
             anchor = tk.W
             side = tk.LEFT
         
