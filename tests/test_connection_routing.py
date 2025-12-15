@@ -81,6 +81,8 @@ class TestConnectionRouting(unittest.TestCase):
     
     def test_cannot_connect_while_already_connected(self):
         """Test that connecting while already connected is prevented."""
+        # Directly set internal state for testing purposes
+        # This is acceptable in unit tests to simulate specific states
         self.network_manager.is_connected = True
         
         # Try to connect again
@@ -91,6 +93,8 @@ class TestConnectionRouting(unittest.TestCase):
     
     def test_cannot_start_server_while_connected(self):
         """Test that starting server while connected is prevented."""
+        # Directly set internal state for testing purposes
+        # This is acceptable in unit tests to simulate specific states
         self.network_manager.is_connected = True
         
         # Try to start server
@@ -101,6 +105,8 @@ class TestConnectionRouting(unittest.TestCase):
     
     def test_cannot_connect_while_server_running(self):
         """Test that connecting while server is running is prevented."""
+        # Directly set internal state for testing purposes
+        # This is acceptable in unit tests to simulate specific states
         self.network_manager.is_server = True
         self.network_manager.socket = MagicMock()
         
@@ -112,6 +118,8 @@ class TestConnectionRouting(unittest.TestCase):
     
     def test_cannot_start_server_while_already_listening(self):
         """Test that starting server while already listening is prevented."""
+        # Directly set internal state for testing purposes
+        # This is acceptable in unit tests to simulate specific states
         self.network_manager.is_server = True
         self.network_manager.socket = MagicMock()
         

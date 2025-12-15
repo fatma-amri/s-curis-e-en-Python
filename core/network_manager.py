@@ -95,6 +95,8 @@ class NetworkManager:
             if self.socket:
                 try:
                     self.socket.close()
+                except OSError as close_error:
+                    logger.debug(f"Error closing socket during cleanup: {close_error}")
                 except Exception:
                     pass
                 self.socket = None
@@ -148,6 +150,8 @@ class NetworkManager:
             if self.peer_socket:
                 try:
                     self.peer_socket.close()
+                except OSError as close_error:
+                    logger.debug(f"Error closing socket during cleanup: {close_error}")
                 except Exception:
                     pass
                 self.peer_socket = None
