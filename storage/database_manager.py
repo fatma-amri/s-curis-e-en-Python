@@ -73,7 +73,14 @@ class DatabaseManager:
         self.conn = sqlite3.connect(self.db_path, check_same_thread=False, timeout=10.0)
         self.conn.row_factory = sqlite3.Row
         # Enable WAL mode for better concurrent access
-        self.conn.execute('PRAGMA journal_mode=WAL')
+        try:
+            result = self.conn.execute('PRAGMA journal_mode=WAL').fetchone()
+            if result and result[0].lower() == 'wal':
+                logger.info("WAL mode enabled for database", event="db_connect")
+            else:
+                logger.warning("WAL mode not available, using default journal mode", event="db_connect")
+        except Exception as e:
+            logger.warning(f"Failed to enable WAL mode: {e}, using default journal mode", event="db_connect")
         logger.info("Connected to database", event="db_connect")
     
     def _create_tables(self):
