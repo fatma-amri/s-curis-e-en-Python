@@ -35,6 +35,7 @@ def test_localhost():
                 print(f"[SERVEUR] Bind sur 127.0.0.1:{PORT}")
             except OSError as e:
                 if e.errno in (98, 99):  # EADDRINUSE or EADDRNOTAVAIL
+                    # Bind to 0.0.0.0 is intentional: fallback to accept from any interface
                     sock.bind(('0.0.0.0', PORT))
                     print(f"[SERVEUR] Bind sur 0.0.0.0:{PORT}")
                 else:

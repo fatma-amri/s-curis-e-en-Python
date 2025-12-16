@@ -48,7 +48,7 @@ def server_mode(port=5555):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         
-        # Bind sur toutes les interfaces
+        # Bind to 0.0.0.0 is intentional: P2P server must accept connections from any interface
         sock.bind(('0.0.0.0', port))
         sock.listen(1)
         

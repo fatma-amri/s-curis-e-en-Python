@@ -51,6 +51,7 @@ def diagnose_network():
     try:
         test_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         test_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        # Bind to 0.0.0.0 is intentional: P2P server must accept connections from any interface
         test_socket.bind(('0.0.0.0', 5555))
         test_socket.listen(1)
         print(f"✓ Port 5555 disponible pour écoute")
@@ -75,6 +76,7 @@ def diagnose_network():
         try:
             test_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             test_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            # Bind to 0.0.0.0 is intentional: needed to test all network interfaces
             test_socket.bind(('0.0.0.0', port))
             test_socket.close()
             available_ports.append(port)
