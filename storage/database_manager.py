@@ -70,8 +70,10 @@ class DatabaseManager:
     
     def _connect(self):
         """Connect to SQLite database."""
-        self.conn = sqlite3.connect(self.db_path, check_same_thread=False)
+        self.conn = sqlite3.connect(self.db_path, check_same_thread=False, timeout=10.0)
         self.conn.row_factory = sqlite3.Row
+        # Enable WAL mode for better concurrent access
+        self.conn.execute('PRAGMA journal_mode=WAL')
         logger.info("Connected to database", event="db_connect")
     
     def _create_tables(self):
