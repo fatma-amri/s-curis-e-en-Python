@@ -149,6 +149,27 @@ Edit `config.json` or use `Tools > Settings...` to configure:
 
 ## 🧪 Testing
 
+### Diagnostic Tools
+
+Before running the application, you can test your network configuration:
+
+```bash
+# Comprehensive network diagnostics
+python network_debug.py
+
+# Test localhost connectivity
+python test_localhost_connection.py
+
+# Test network connectivity between machines
+# On machine A:
+python test_network_connection.py server
+
+# On machine B:
+python test_network_connection.py client <IP_of_A>
+```
+
+### Unit Tests
+
 Run unit tests:
 
 ```bash
@@ -205,9 +226,12 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## 🔍 Troubleshooting
 
 **Connection fails:**
-- Check firewall settings
+- Run `python network_debug.py` for comprehensive diagnostics
+- Run `python test_localhost_connection.py` to test basic connectivity
+- Check firewall settings (see [TROUBLESHOOTING.md](TROUBLESHOOTING.md))
 - Verify IP address and port
 - Ensure peer is listening
+- See detailed guide: [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
 
 **Password incorrect:**
 - Keys cannot be recovered without password
@@ -216,7 +240,14 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 **Messages not sending:**
 - Check connection status in status bar
 - Try reconnecting
-- Check logs in `data/logs/`
+- Check logs in `data/logs/network_manager.log`
+
+**Port already in use:**
+- Run `python network_debug.py` to find available ports
+- Use a different port in the application
+- Or stop the process using the port
+
+For comprehensive troubleshooting, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 
 ## 📚 References
 
