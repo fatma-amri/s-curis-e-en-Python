@@ -33,9 +33,12 @@ def test_localhost():
             try:
                 sock.bind(('127.0.0.1', PORT))
                 print(f"[SERVEUR] Bind sur 127.0.0.1:{PORT}")
-            except OSError:
-                sock.bind(('0.0.0.0', PORT))
-                print(f"[SERVEUR] Bind sur 0.0.0.0:{PORT}")
+            except OSError as e:
+                if e.errno in (98, 99):  # EADDRINUSE or EADDRNOTAVAIL
+                    sock.bind(('0.0.0.0', PORT))
+                    print(f"[SERVEUR] Bind sur 0.0.0.0:{PORT}")
+                else:
+                    raise
             
             sock.listen(1)
             sock.settimeout(10)  # 10 seconds timeout

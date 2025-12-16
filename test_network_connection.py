@@ -11,10 +11,13 @@ import time
 
 def get_local_ip():
     """Get the local IP address."""
+    # DNS server for connectivity test (use Google DNS or configure as needed)
+    DNS_SERVER = '8.8.8.8'
+    
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
         # Connect to an external address to get local IP
-        s.connect(('8.8.8.8', 80))
+        s.connect((DNS_SERVER, 80))
         ip = s.getsockname()[0]
     except Exception:
         try:
@@ -118,13 +121,19 @@ def client_mode(host, port=5555):
     print()
     
     try:
-        # Valider l'adresse IP
+        # Valider l'adresse IP (support IPv4 et IPv6)
         try:
-            socket.inet_aton(host)
-            print(f"[CLIENT] Adresse IP valide: {host}")
+            # Try IPv4 first
+            socket.inet_pton(socket.AF_INET, host)
+            print(f"[CLIENT] Adresse IPv4 valide: {host}")
         except socket.error:
-            print(f"✗ ERREUR: Adresse IP invalide: {host}")
-            return
+            try:
+                # Try IPv6
+                socket.inet_pton(socket.AF_INET6, host)
+                print(f"[CLIENT] Adresse IPv6 valide: {host}")
+            except socket.error:
+                print(f"✗ ERREUR: Adresse IP invalide: {host}")
+                return
         
         # Créer le socket
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

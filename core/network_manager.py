@@ -9,13 +9,16 @@ import time
 import queue
 import secrets
 import sys
+import os
 from core.protocol import Protocol, MessageType
 from utils.logger import SecureLogger
 
 logger = SecureLogger('network_manager')
 
 # Enable DEBUG level logging for detailed network diagnostics
-logger.logger.setLevel('DEBUG')
+# Set NETWORK_DEBUG=0 environment variable to disable in production
+if os.environ.get('NETWORK_DEBUG', '1') == '1':
+    logger.logger.setLevel('DEBUG')
 
 
 class NetworkManager:
@@ -89,8 +92,12 @@ class NetworkManager:
             
             # On macOS, also enable SO_REUSEPORT
             if sys.platform == 'darwin':
-                self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
-                logger.debug("SO_REUSEPORT option enabled (macOS)", event="server_start")
+                try:
+                    self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+                    logger.debug("SO_REUSEPORT option enabled (macOS)", event="server_start")
+                except (AttributeError, OSError) as e:
+                    # SO_REUSEPORT may not be available on all systems
+                    logger.debug(f"SO_REUSEPORT not available: {e}", event="server_start")
             
             self.socket.bind((host, port))
             logger.info(f"Socket bound to {host}:{port}", event="server_start")

@@ -217,7 +217,19 @@ sudo /usr/libexec/ApplicationFirewall/socketfilterfw --unblockapp /usr/bin/pytho
 
 ### Activer les Logs Détaillés
 
-Les logs DEBUG sont maintenant activés par défaut. Consultez-les :
+Les logs DEBUG sont activés par défaut. Pour les désactiver en production :
+
+```bash
+# Désactiver les logs DEBUG
+export NETWORK_DEBUG=0
+python main.py
+
+# Ou dans le code, avant d'importer network_manager
+import os
+os.environ['NETWORK_DEBUG'] = '0'
+```
+
+Consulter les logs :
 
 ```bash
 # Logs en temps réel

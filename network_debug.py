@@ -19,6 +19,10 @@ def diagnose_network():
     # 1. Vérifier l'adresse IP locale
     print("1. ADRESSE IP LOCALE")
     print("-" * 60)
+    
+    # DNS server for connectivity test
+    DNS_SERVER = '8.8.8.8'
+    
     try:
         hostname = socket.gethostname()
         local_ip = socket.gethostbyname(hostname)
@@ -28,7 +32,7 @@ def diagnose_network():
         # Get better IP using UDP trick
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         try:
-            s.connect(('8.8.8.8', 80))
+            s.connect((DNS_SERVER, 80))
             better_ip = s.getsockname()[0]
             print(f"✓ IP réseau: {better_ip}")
         except Exception:
